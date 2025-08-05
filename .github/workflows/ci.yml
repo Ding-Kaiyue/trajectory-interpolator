@@ -1,0 +1,107 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        cpp: [17, 20]
+        build_type: [Debug, Release]
+        ros2: [true, false]
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential cmake libgtest-dev
+        if [ "${{ matrix.ros2 }}" = "true" ]; then
+          sudo apt-get install -y ros-humble-ament-cmake ros-humble-rclcpp ros-humble-trajectory-msgs ros-humble-moveit-msgs ros-humble-builtin-interfaces
+        fi
+    
+    - name: Set up ROS2 environment
+      if: matrix.ros2 == 'true'
+      run: |
+        echo "source /opt/ros/humble/setup.bash" >> $GITHUB_ENV
+    
+    - name: Configure CMake
+      run: |
+        mkdir build
+        cd build
+        cmake .. \
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+          -DCMAKE_CXX_STANDARD=${{ matrix.cpp }} \
+          -DUSE_ROS2_MESSAGES=${{ matrix.ros2 }}
+    
+    - name: Build
+      run: |
+        cd build
+        make -j$(nproc)
+    
+    - name: Run tests
+      run: |
+        cd build
+        ./tests/test_trajectory_interpolator
+        ./tests/test_moveit_compatibility
+    
+    - name: Run example
+      run: |
+        cd build
+        ./bin/basic_interpolation_example
+    
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-${{ matrix.cpp }}-${{ matrix.build_type }}-ros2-${{ matrix.ros2 }}
+        path: build/
+
+  package:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential cmake libgtest-dev devscripts
+    
+    - name: Create release package
+      run: |
+        chmod +x create_release_package.sh
+        ./create_release_package.sh 1.0.0
+    
+    - name: Upload release package
+      uses: actions/upload-artifact@v4
+      with:
+        name: release-package
+        path: trajectory_interpolator_v*.tar.gz
+
+  code-quality:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install clang-format
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y clang-format
+    
+    - name: Check code formatting
+      run: |
+        find . -name "*.cpp" -o -name "*.hpp" -o -name "*.h" | xargs clang-format --dry-run --Werror
+    
+    - name: Run cppcheck
+      run: |
+        sudo apt-get install -y cppcheck
+        cppcheck --enable=all --error-exitcode=1 src/ include/ 

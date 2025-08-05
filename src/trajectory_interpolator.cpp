@@ -1,0 +1,100 @@
+#include "trajectory_interpolator/trajectory_interpolator.hpp"
+#include <stdexcept>
+#include <algorithm>
+
+namespace trajectory_interpolator {
+
+
+void TrajectoryInterpolator::setInterpolationConfig(const SplineConfig& config) {
+    config_ = config;
+}
+
+bool TrajectoryInterpolator::loadTrajectory(const Trajectory& trajectory) {
+    try {
+        return adapter_.createSplineFromTrajectory(trajectory, config_);
+    } catch (const std::exception& e) {
+        // 可以在这里添加日志记录
+        return false;
+    }
+}
+
+Trajectory TrajectoryInterpolator::interpolate(double target_dt) const {
+    if (!isLoaded()) {
+        throw std::runtime_error("No trajectory loaded");
+    }
+
+    if (target_dt <= 0.0) {
+        throw std::runtime_error("Target dt must be positive");
+    }
+
+    Trajectory result;
+    result.joint_names = adapter_.getJointNames();
+
+    double start_time = adapter_.getStartTime();
+    double end_time = adapter_.getEndTime();
+
+    for (double t = start_time; t <= end_time; t += target_dt) {
+        TrajectoryPoint point;
+        point.time_from_start = t;
+        point.positions = adapter_.interpolateAtTime(t);
+        point.velocities = adapter_.getVelocityAtTime(t);
+        point.accelerations = adapter_.getAccelerationAtTime(t);
+        result.points.push_back(point);
+    }
+
+    return result;
+}
+
+std::vector<double> TrajectoryInterpolator::interpolateAtTime(double time) const {
+    if (!isLoaded()) {
+        throw std::runtime_error("No trajectory loaded");
+    }
+    return adapter_.interpolateAtTime(time);
+}
+
+std::vector<double> TrajectoryInterpolator::getVelocityAtTime(double time) const {
+    if (!isLoaded()) {
+        throw std::runtime_error("No trajectory loaded");
+    }
+    return adapter_.getVelocityAtTime(time);
+}
+
+std::vector<double> TrajectoryInterpolator::getAccelerationAtTime(double time) const {
+    if (!isLoaded()) {
+        throw std::runtime_error("No trajectory loaded");
+    }
+    return adapter_.getAccelerationAtTime(time);
+}
+
+bool TrajectoryInterpolator::checkConstraints() const {
+    if (!isLoaded()) {
+        return false;
+    }
+    return adapter_.checkConstraints(config_);
+}
+
+const SplineConfig& TrajectoryInterpolator::getConfig() const {
+    return config_;
+}
+
+bool TrajectoryInterpolator::isLoaded() const {
+    return adapter_.isLoaded();
+}
+
+double TrajectoryInterpolator::getStartTime() const {
+    return adapter_.getStartTime();
+}
+
+double TrajectoryInterpolator::getEndTime() const {
+    return adapter_.getEndTime();
+}
+
+const MoveItSplineAdapter& TrajectoryInterpolator::getAdapter() const {
+    return adapter_;
+}
+
+MoveItSplineAdapter& TrajectoryInterpolator::getAdapter() {
+    return adapter_;
+}
+
+} // namespace trajectory_interpolator
