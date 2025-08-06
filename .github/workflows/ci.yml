@@ -74,20 +74,11 @@ jobs:
         
         echo "Build completed successfully!"
 
-    - name: Create release package
-      run: |
-        pwd
-        ls -la
-        chmod +x create_release_package.sh
-        ./create_release_package.sh
-
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
         name: trajectory-interpolator-build-artifacts
         path: |
-          trajectory_interpolator_*.tar.gz
-          *.deb
           build-ros2/lib/
           build-ros2/bin/
           build-no-ros2/lib/
