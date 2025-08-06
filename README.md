@@ -2,6 +2,15 @@
 
 一个基于 `ttk592/spline` 库的高性能C++轨迹插值库，专为机器人臂轨迹规划设计，支持MoveIt集成。
 
+## 特性
+
+- 🚀 **高性能插值**: 基于三次样条的高精度轨迹插值
+- 🔧 **MoveIt集成**: 原生支持MoveIt轨迹消息格式
+- ⚡ **实时插值**: 支持实时轨迹插值和约束检查
+- 🛡️ **约束检查**: 内置速度、加速度、加加速度约束检查
+- 🔄 **双模式支持**: 支持ROS2和独立模式
+- 📦 **易于部署**: 提供源码和包管理器安装方式
+
 ## 快速安装
 
 ### 方法1: 源码安装（推荐）
@@ -12,7 +21,11 @@ git clone https://github.com/Ding-Kaiyue/trajectory-interpolator.git
 cd trajectory-interpolator
 
 # 编译安装
-./build.sh
+mkdir build && cd build
+cmake ..
+make -j$(nproc)
+sudo make install
+sudo ldconfig
 ```
 
 ### 方法2: 发布包安装
@@ -27,7 +40,21 @@ cd trajectory_interpolator_release
 sudo ./install.sh
 ```
 
-### 方法3: Debian包安装
+### 方法3: APT安装
+
+```bash
+# 添加仓库密钥
+wget -qO - https://ding-kaiyue.github.io/trajectory-interpolator/gpg.key | sudo apt-key add -
+
+# 添加仓库
+echo "deb [arch=amd64] https://ding-kaiyue.github.io/trajectory-interpolator jammy main" | sudo tee /etc/apt/sources.list.d/trajectory-interpolator.list
+
+# 更新并安装
+sudo apt update
+sudo apt install libtrajectory-interpolator0 libtrajectory-interpolator-dev
+```
+
+### 方法4: Debian包安装
 
 ```bash
 # 下载并安装
@@ -105,57 +132,37 @@ int main() {
 
 ## 编译
 
+- **操作系统**: Ubuntu 20.04+ / ROS2 Humble
+- **编译器**: GCC 7.5+ / Clang 10+
+- **依赖**: CMake 3.8+, GTest (可选)
+- **ROS2**: Humble (可选，用于ROS2消息支持)
+
+## 构建选项
+
 ```bash
-# 使用g++编译您的程序
-g++ -std=c++17 -ltrajectory_interpolator_core -lpthread your_program.cpp -o your_program
+# 启用ROS2支持（默认）
+cmake .. -DUSE_ROS2_MESSAGES=ON
 
-# 使用pkg-config（如果已安装）
-g++ -std=c++17 $(pkg-config --cflags --libs trajectory_interpolator) your_program.cpp -o your_program
+# 禁用ROS2支持（独立模式）
+cmake .. -DUSE_ROS2_MESSAGES=OFF
+
+# 指定C++标准
+cmake .. -DCMAKE_CXX_STANDARD=17
+
+# 构建类型
+cmake .. -DCMAKE_BUILD_TYPE=Release
 ```
 
-## 主要功能
+## 测试
 
-* **高性能插值**: 基于三次样条插值算法，提供C²连续的平滑轨迹
-* **MoveIt兼容**: 支持MoveIt轨迹数据结构的直接集成
-* **智能指针通信**: 通过 `std::unique_ptr` 实现高效的节点间通信
-* **ROS2集成**: 可选支持ROS2消息类型，便于在ROS2环境中使用
-* **约束检查**: 内置速度、加速度、加加速度约束检查
-* **实时插值**: 支持任意时间点的位置、速度、加速度查询
-* **单元测试**: 完整的测试覆盖，确保代码质量
+```bash
+# 运行所有测试
+cd build
+ctest --output-on-failure
 
-## API概览
-
-```cpp
-// 创建和配置
-auto interpolator = std::make_unique<trajectory_interpolator::TrajectoryInterpolator>();
-interpolator->setInterpolationConfig(config);
-
-// 加载轨迹
-interpolator->loadTrajectory(trajectory);
-
-// 实时插值
-auto positions = interpolator->interpolateAtTime(time);
-auto velocities = interpolator->getVelocityAtTime(time);
-auto accelerations = interpolator->getAccelerationAtTime(time);
-
-// 完整轨迹插值
-auto interpolated = interpolator->interpolate(0.01);
-
-// 约束检查
-bool valid = interpolator->checkConstraints();
-
-// 状态查询
-bool loaded = interpolator->isLoaded();
-double start_time = interpolator->getStartTime();
-double end_time = interpolator->getEndTime();
+# 运行示例
+./bin/basic_interpolation_example
 ```
-
-## 依赖项
-
-* **C++17** 编译器
-* **CMake 3.8+**
-* **GTest** (用于单元测试)
-* **ROS2 Humble** (可选，用于ROS2消息支持)
 
 ## 故障排除
 
@@ -190,12 +197,12 @@ MIT License - 详见 LICENSE 文件
 
 **注意**: 本项目包含来自 [ttk592/spline](https://github.com/ttk592/spline) 的 GPL-2.0 组件，仅用于样条插值算法实现。
 
-## 致谢
+## 支持
 
-* [ttk592/spline](https://github.com/ttk592/spline) - 提供高性能样条插值算法
-* MoveIt社区 - 提供机器人轨迹规划框架
-* ROS2社区 - 提供机器人操作系统
+- 🐛 **问题报告**: [GitHub Issues](https://github.com/Ding-Kaiyue/trajectory-interpolator/issues)
+- 💬 **讨论**: [GitHub Discussions](https://github.com/Ding-Kaiyue/trajectory-interpolator/discussions)
+- 📧 **联系**: kaiyue.ding@raysense.com
 
 ---
 
-**注意**: 本库专为机器人轨迹插值设计，已在多种机器人平台上测试验证。
+**⭐ 如果这个项目对你有帮助，请给我们一个星标！**
