@@ -71,7 +71,7 @@ jobs:
         ./create_release_package.sh
     
     - name: Upload artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: trajectory-interpolator-${{ matrix.cpp }}-${{ matrix.build_type }}-ros2-${{ matrix.ros2 }}
         path: |
