@@ -118,7 +118,7 @@ int main() {
 
 ## 编译
 
-- **操作系统**: Ubuntu 20.04+ / ROS2 Humble
+- **操作系统**: Ubuntu 22.04
 - **编译器**: GCC 7.5+ / Clang 10+
 - **依赖**: CMake 3.8+, GTest (可选)
 - **ROS2**: Humble (可选，用于ROS2消息支持)
@@ -163,9 +163,9 @@ ctest --output-on-failure
 
 ### GitHub Issues
 
-* **使用问题**: [提交使用问题](https://github.com/Ding-Kaiyue/trajectory-interpolator/issues/new?template=usage-question.md) - 提交使用中的问题，我们会提供指导
-* **Bug 报告**: [报告 Bug](https://github.com/Ding-Kaiyue/trajectory-interpolator/issues/new?template=bug-report.md) - 报告发现的 Bug，我们会尽快修复
-* **功能建议**: [提出建议](https://github.com/Ding-Kaiyue/trajectory-interpolator/issues/new?template=feature-request.md) - 提出新功能建议，我们会认真考虑
+* **使用问题**: [提交使用问题](https://github.com/Ding-Kaiyue/trajectory-interpolator/issues/new?template=usage_question.md) - 提交使用中的问题，我们会提供指导
+* **Bug 报告**: [报告 Bug](https://github.com/Ding-Kaiyue/trajectory-interpolator/issues/new?template=bug_report.md) - 报告发现的 Bug，我们会尽快修复
+* **功能建议**: [提出建议](https://github.com/Ding-Kaiyue/trajectory-interpolator/issues/new?template=feature_request.md) - 提出新功能建议，我们会认真考虑
 
 ### 联系方式
 
@@ -182,12 +182,6 @@ ctest --output-on-failure
 MIT License - 详见 LICENSE 文件
 
 **注意**: 本项目包含来自 [ttk592/spline](https://github.com/ttk592/spline) 的 GPL-2.0 组件，仅用于样条插值算法实现。
-
-## 支持
-
-- 🐛 **问题报告**: [GitHub Issues](https://github.com/Ding-Kaiyue/trajectory-interpolator/issues)
-- 💬 **讨论**: [GitHub Discussions](https://github.com/Ding-Kaiyue/trajectory-interpolator/discussions)
-- 📧 **联系**: kaiyue.ding@raysense.com
 
 ---
 
