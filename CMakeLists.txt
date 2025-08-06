@@ -135,14 +135,22 @@ if(BUILD_TESTS)
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tests
       )
       
-      target_link_libraries(${TEST_NAME}
-        trajectory_interpolator_core
-        GTest::gtest
-        GTest::gmock
-        GTest::gtest_main
-        GTest::gmock_main
-        Threads::Threads
-      )
+      # 只有在GTest可用时才链接GTest库
+      if(GTest_FOUND)
+        target_link_libraries(${TEST_NAME}
+          trajectory_interpolator_core
+          GTest::gtest
+          GTest::gmock
+          GTest::gtest_main
+          GTest::gmock_main
+          Threads::Threads
+        )
+      else()
+        target_link_libraries(${TEST_NAME}
+          trajectory_interpolator_core
+          Threads::Threads
+        )
+      endif()
       
       # 为测试程序添加相同的编译定义
       if(USE_ROS2_MESSAGES)
@@ -155,7 +163,10 @@ if(BUILD_TESTS)
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include
       )
       
-      add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
+      # 只有在GTest可用时才添加测试
+      if(GTest_FOUND)
+        add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
+      endif()
     endforeach()
   endif()
 else()

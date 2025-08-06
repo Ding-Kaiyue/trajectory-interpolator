@@ -39,8 +39,8 @@ bool MoveItSplineAdapter::createSplineFromTrajectory(const Trajectory& trajector
         }
 
         auto spline = std::make_unique<tk::spline>();
-        spline->set_boundary(tk::spline::second_deriv, config_.left_value,
-                            tk::spline::second_deriv, config_.right_value);
+        spline->set_boundary(convertBoundaryType(config_.left_boundary), config_.left_value,
+                            convertBoundaryType(config_.right_boundary), config_.right_value);
         spline->set_points(time_points_, positions, convertSplineType(config_.spline_type));
 
         joint_splines_.push_back(std::move(spline));
