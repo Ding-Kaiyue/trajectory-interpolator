@@ -76,6 +76,8 @@ jobs:
 
     - name: Create release package
       run: |
+        pwd
+        ls -la
         chmod +x create_release_package.sh
         ./create_release_package.sh
 
