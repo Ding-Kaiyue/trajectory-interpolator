@@ -11,7 +11,15 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-find_package(GTest REQUIRED)
+# 查找GTest，如果找不到则跳过测试
+find_package(GTest QUIET)
+if(NOT GTest_FOUND)
+  message(WARNING "GTest not found, tests will be disabled")
+  set(BUILD_TESTS OFF)
+else()
+  set(BUILD_TESTS ON)
+endif()
+
 find_package(Threads REQUIRED)
 
 # === trajectory_interpolator 核心库（无ROS2依赖） ===
@@ -113,41 +121,45 @@ install(TARGETS
 )
 
 # === 测试配置 ===
-file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/tests)
+if(BUILD_TESTS)
+  file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/tests)
 
-file(GLOB TEST_SOURCES tests/*.cpp)
-if(TEST_SOURCES)
-  foreach(TEST_FILE ${TEST_SOURCES})
-    get_filename_component(TEST_NAME ${TEST_FILE} NAME_WE)
-    
-    add_executable(${TEST_NAME} ${TEST_FILE})
-    
-    set_target_properties(${TEST_NAME} PROPERTIES
-      RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tests
-    )
-    
-    target_link_libraries(${TEST_NAME}
-      trajectory_interpolator_core
-      GTest::gtest
-      GTest::gmock
-      GTest::gtest_main
-      GTest::gmock_main
-      Threads::Threads
-    )
-    
-    # 为测试程序添加相同的编译定义
-    if(USE_ROS2_MESSAGES)
-      target_compile_definitions(${TEST_NAME} PRIVATE USE_ROS2_MESSAGES)
-    else()
-      target_compile_definitions(${TEST_NAME} PRIVATE USE_ROS2_MESSAGES=0)
-    endif()
-    
-    target_include_directories(${TEST_NAME} 
-      PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include
-    )
-    
-    add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
-  endforeach()
+  file(GLOB TEST_SOURCES tests/*.cpp)
+  if(TEST_SOURCES)
+    foreach(TEST_FILE ${TEST_SOURCES})
+      get_filename_component(TEST_NAME ${TEST_FILE} NAME_WE)
+      
+      add_executable(${TEST_NAME} ${TEST_FILE})
+      
+      set_target_properties(${TEST_NAME} PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tests
+      )
+      
+      target_link_libraries(${TEST_NAME}
+        trajectory_interpolator_core
+        GTest::gtest
+        GTest::gmock
+        GTest::gtest_main
+        GTest::gmock_main
+        Threads::Threads
+      )
+      
+      # 为测试程序添加相同的编译定义
+      if(USE_ROS2_MESSAGES)
+        target_compile_definitions(${TEST_NAME} PRIVATE USE_ROS2_MESSAGES)
+      else()
+        target_compile_definitions(${TEST_NAME} PRIVATE USE_ROS2_MESSAGES=0)
+      endif()
+      
+      target_include_directories(${TEST_NAME} 
+        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include
+      )
+      
+      add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
+    endforeach()
+  endif()
+else()
+  message(STATUS "Tests disabled - GTest not found")
 endif()
 
 # ROS2配置

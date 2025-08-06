@@ -8,7 +8,7 @@
 #include <vector>
 
 // 条件编译ROS2消息类型
-#ifdef USE_ROS2_MESSAGES
+#if defined(USE_ROS2_MESSAGES) && USE_ROS2_MESSAGES
 #include <trajectory_msgs/msg/joint_trajectory.hpp>
 #include <moveit_msgs/msg/robot_trajectory.hpp>
 #include <builtin_interfaces/msg/duration.hpp>
@@ -42,7 +42,7 @@ public:
     // 从简化轨迹创建spline
     bool createSplineFromTrajectory(const Trajectory& trajectory,
                                    const SplineConfig& config = SplineConfig{});
-#ifdef USE_ROS2_MESSAGES
+#if defined(USE_ROS2_MESSAGES) && USE_ROS2_MESSAGES
     // 从 MoveIt 轨迹消息创建 spline
     bool createSplineFromTrajectory(const moveit_msgs::msg::RobotTrajectory& trajectory, 
                                     const SplineConfig& config = SplineConfig{});
@@ -92,7 +92,7 @@ private:
     tk::spline::spline_type convertSplineType(SplineConfig::SplineType type);
     tk::spline::bd_type convertBoundaryType(SplineConfig::BoundaryType type);
     bool isTimeValid(const std::vector<SplinePtr>& splines, double time) const;
-#ifdef USE_ROS2_MESSAGES
+#if defined(USE_ROS2_MESSAGES) && USE_ROS2_MESSAGES
     // ROS2 辅助函数    
     double timeFromDuration(const builtin_interfaces::msg::Duration& duration) const;
     builtin_interfaces::msg::Duration durationFromTime(double time) const;

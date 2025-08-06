@@ -4,7 +4,7 @@
 #include "moveit_spline_adapter.hpp"
 #include "config.hpp"
 
-#ifdef USE_ROS2_MESSAGES
+#if defined(USE_ROS2_MESSAGES) && USE_ROS2_MESSAGES
 #include <trajectory_msgs/msg/joint_trajectory.hpp>
 #include <moveit_msgs/msg/robot_trajectory.hpp>
 #endif
@@ -23,7 +23,7 @@ public:
     // 加载轨迹（简化版本）
     bool loadTrajectory(const Trajectory& trajectory);
 
-#ifdef USE_ROS2_MESSAGES
+#if defined(USE_ROS2_MESSAGES) && USE_ROS2_MESSAGES
     // 加载轨迹
     bool loadTrajectory(const moveit_msgs::msg::RobotTrajectory& trajectory);
     bool loadTrajectory(const trajectory_msgs::msg::JointTrajectory& trajectory);  

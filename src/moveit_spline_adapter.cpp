@@ -1,78 +1,55 @@
 #include "trajectory_interpolator/moveit_spline_adapter.hpp"
-#include <algorithm>
 #include <stdexcept>
+#include <algorithm>
+#include <cmath>
 
 namespace trajectory_interpolator 
 {
-bool MoveItSplineAdapter::createSplineFromTrajectory(
-    const Trajectory& trajectory, 
-    const SplineConfig& config) {
-    try {
-        // 检查轨迹是否为空
-        if (trajectory.points.empty() || trajectory.joint_names.empty()) {
-            return false;
-        }
 
-        config_ = config;
-        joint_names_ = trajectory.joint_names;
-
-        // 提取时间序列
-        time_points_.clear();
-        time_points_.reserve(trajectory.points.size());
-        for (const auto& point : trajectory.points) {
-            if (point.time_from_start < 0.0) {
-                throw std::runtime_error("Time from start must be non-negative");
-            }
-            time_points_.push_back(point.time_from_start);
-        }
-
-        // 验证时间序列单调性
-        for (size_t i = 1; i < time_points_.size(); ++i) {
-            if (time_points_[i] <= time_points_[i-1]) {
-                throw std::runtime_error("Time points must be monotonically increasing");
-            }
-        }
-
-        // 创建spline
-        joint_splines_.clear();
-        joint_splines_.reserve(joint_names_.size());
-
-        for (size_t joint_idx = 0; joint_idx < joint_names_.size(); ++joint_idx) {
-            std::vector<double> positions;
-            positions.reserve(trajectory.points.size());
-
-            for (const auto& point : trajectory.points) {
-                if (joint_idx < point.positions.size()) {
-                    positions.push_back(point.positions[joint_idx]);
-                } else {
-                    return false;
-                }
-            }
-
-            // 创建spline
-            auto spline = std::make_unique<tk::spline>(
-                time_points_, 
-                positions,
-                convertSplineType(config_.spline_type),
-                config_.make_monotonic,
-                convertBoundaryType(config_.left_boundary),
-                config_.left_value,
-                convertBoundaryType(config_.right_boundary),
-                config_.right_value
-            );
-
-            joint_splines_.push_back(std::move(spline));
-        }
-        return true;
-    } catch (const std::exception& e) {
-        joint_splines_.clear();
-        time_points_.clear();
-        joint_names_.clear();
+bool MoveItSplineAdapter::createSplineFromTrajectory(const Trajectory& trajectory,
+                                                     const SplineConfig& config) {
+    if (trajectory.points.empty()) {
         return false;
     }
+
+    config_ = config;
+    joint_names_ = trajectory.joint_names;
+    joint_splines_.clear();
+    time_points_.clear();
+
+    // 提取时间序列
+    for (const auto& point : trajectory.points) {
+        time_points_.push_back(point.time_from_start);
+    }
+
+    // 为每个关节创建spline
+    size_t num_joints = trajectory.points[0].positions.size();
+    joint_splines_.reserve(num_joints);
+
+    for (size_t joint_idx = 0; joint_idx < num_joints; ++joint_idx) {
+        std::vector<double> positions, velocities, accelerations;
+        positions.reserve(trajectory.points.size());
+        velocities.reserve(trajectory.points.size());
+        accelerations.reserve(trajectory.points.size());
+
+        for (const auto& point : trajectory.points) {
+            positions.push_back(point.positions[joint_idx]);
+            velocities.push_back(point.velocities[joint_idx]);
+            accelerations.push_back(point.accelerations[joint_idx]);
+        }
+
+        auto spline = std::make_unique<tk::spline>();
+        spline->set_boundary(tk::spline::second_deriv, config_.left_value,
+                            tk::spline::second_deriv, config_.right_value);
+        spline->set_points(time_points_, positions, convertSplineType(config_.spline_type));
+
+        joint_splines_.push_back(std::move(spline));
+    }
+
+    return true;
 }
 
-#ifdef USE_ROS2_MESSAGES
+#if defined(USE_ROS2_MESSAGES) && USE_ROS2_MESSAGES
 bool MoveItSplineAdapter::createSplineFromTrajectory(
     const trajectory_msgs::msg::JointTrajectory& trajectory,
     const SplineConfig& config) {
