@@ -179,7 +179,7 @@ ctest --output-on-failure
 
 ## 许可证
 
-MIT License - 详见 LICENSE 文件
+MIT License - 详见 [LICENSE](LICENSE) 文件
 
 **注意**: 本项目包含来自 [ttk592/spline](https://github.com/ttk592/spline) 的 GPL-2.0 组件，仅用于样条插值算法实现。
 
