@@ -22,15 +22,18 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y build-essential cmake libgtest-dev
+        sudo apt-get install -y build-essential cmake libgtest-dev curl gnupg2 lsb-release
+        
         if [ "${{ matrix.ros2 }}" = "true" ]; then
+          # Add ROS2 Humble repository
+          sudo apt-get install -y software-properties-common
+          sudo add-apt-repository universe
+          sudo apt-get update && sudo apt-get install -y curl gnupg2 lsb-release
+          sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
+          sudo apt-get update
           sudo apt-get install -y ros-humble-ament-cmake ros-humble-rclcpp ros-humble-trajectory-msgs ros-humble-moveit-msgs ros-humble-builtin-interfaces
         fi
-    
-    - name: Set up ROS2 environment
-      if: matrix.ros2 == 'true'
-      run: |
-        echo "source /opt/ros/humble/setup.bash" >> $GITHUB_ENV
     
     - name: Configure CMake
       run: |
@@ -49,12 +52,18 @@ jobs:
     - name: Run tests
       run: |
         cd build
+        if [ "${{ matrix.ros2 }}" = "true" ]; then
+          source /opt/ros/humble/setup.bash
+        fi
         ./tests/test_trajectory_interpolator
         ./tests/test_moveit_compatibility
     
     - name: Run example
       run: |
         cd build
+        if [ "${{ matrix.ros2 }}" = "true" ]; then
+          source /opt/ros/humble/setup.bash
+        fi
         ./bin/basic_interpolation_example
     
     - name: Upload build artifacts
