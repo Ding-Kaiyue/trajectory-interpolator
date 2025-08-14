@@ -30,7 +30,7 @@ public:
     std::vector<double> interpolateAtTime(double time);
     std::vector<double> getVelocityAtTime(double time);
     std::vector<double> getAccelerationAtTime(double time);
-    Trajectory interpolate(double dt);
+    Trajectory interpolate();
 
     // 转换方法
     #ifdef USE_ROS2_MESSAGES
