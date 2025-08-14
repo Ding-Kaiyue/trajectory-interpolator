@@ -75,7 +75,7 @@ int main() {
     
     // 配置插值参数
     trajectory_interpolator::SplineConfig config;
-    config.dt = 0.02;
+    config.target_dt = 0.02;
     config.spline_type = SplineConfig::CSPLINE;
     interpolator->setInterpolationConfig(config);
     

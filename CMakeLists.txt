@@ -97,7 +97,7 @@ set_target_properties(basic_interpolation_example PROPERTIES
 
 # === 安装头文件和库 ===
 install(DIRECTORY include/trajectory_interpolator DESTINATION include)
-install(FILES include/trajectory_interpolator/trajectory_interpolator.hpp DESTINATION include/trajectory_interpolator)
+install(FILES include/trajectory_interpolator.hpp DESTINATION include)
 
 # 创建库的别名
 add_library(trajectory_interpolator ALIAS trajectory_interpolator_core)
