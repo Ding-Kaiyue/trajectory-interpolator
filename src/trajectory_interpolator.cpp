@@ -18,12 +18,12 @@ bool TrajectoryInterpolator::loadTrajectory(const Trajectory& trajectory) {
     }
 }
 
-Trajectory TrajectoryInterpolator::interpolate(double target_dt) const {
+Trajectory TrajectoryInterpolator::interpolate() const {
     if (!isLoaded()) {
         throw std::runtime_error("No trajectory loaded");
     }
 
-    if (target_dt <= 0.0) {
+    if (config_.target_dt <= 0.0) {
         throw std::runtime_error("Target dt must be positive");
     }
 
@@ -33,7 +33,11 @@ Trajectory TrajectoryInterpolator::interpolate(double target_dt) const {
     double start_time = adapter_.getStartTime();
     double end_time = adapter_.getEndTime();
 
-    for (double t = start_time; t <= end_time; t += target_dt) {
+    int num_points = static_cast<int>((end_time - start_time) / config_.target_dt) + 1;
+    for (int i = 0; i < num_points; ++i) {
+        double t = start_time + i * config_.target_dt;
+        if (t > end_time) break;
+        
         TrajectoryPoint point;
         point.time_from_start = t;
         point.positions = adapter_.interpolateAtTime(t);

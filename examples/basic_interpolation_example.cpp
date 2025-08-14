@@ -50,7 +50,7 @@ int main() {
         std::cout << "End time: " << interpolator.getEndTime() << "s" << std::endl;
         
         // 插值轨迹
-        auto interpolated_trajectory = interpolator.interpolate(0.1);  // 100ms间隔
+        auto interpolated_trajectory = interpolator.interpolate();  // 100ms间隔
         
         std::cout << "Interpolated trajectory has " << interpolated_trajectory.points.size() << " points" << std::endl;
         

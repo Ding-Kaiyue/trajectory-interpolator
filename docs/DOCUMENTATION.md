@@ -207,7 +207,7 @@ int main() {
         auto accelerations = interpolator->getAccelerationAtTime(time);
         
         // 插值完整轨迹
-        auto interpolated = interpolator->interpolate(0.01);
+        auto interpolated = interpolator->interpolate();
         
         // 检查约束
         if (interpolator->checkConstraints()) {

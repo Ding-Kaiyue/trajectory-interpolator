@@ -33,7 +33,7 @@ public:
 #endif
 
     // 插值操作
-    Trajectory interpolate(double target_dt) const;
+    Trajectory interpolate() const;
     std::vector<double> interpolateAtTime(double time) const;
     std::vector<double> getVelocityAtTime(double time) const;
     std::vector<double> getAccelerationAtTime(double time) const;

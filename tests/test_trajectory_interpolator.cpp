@@ -91,7 +91,7 @@ TEST_F(TrajectoryInterpolatorTest, InterpolateFullTrajectory) {
     auto trajectory = createTestTrajectory();
     interpolator_.loadTrajectory(trajectory);
     
-    auto interpolated_trajectory = interpolator_.interpolate(0.1);
+    auto interpolated_trajectory = interpolator_.interpolate();
     EXPECT_EQ(interpolated_trajectory.joint_names.size(), 3);
     EXPECT_GT(interpolated_trajectory.points.size(), 10);
 }

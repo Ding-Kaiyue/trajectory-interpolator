@@ -108,14 +108,14 @@ TEST_F(MoveItCompatibilityTest, TrajectoryInterpolation) {
     interpolator_.loadTrajectory(trajectory);
     
     // 插值整个轨迹
-    auto interpolated_trajectory = interpolator_.interpolate(0.01);  // 10ms间隔
+    auto interpolated_trajectory = interpolator_.interpolate();  // 10ms间隔
     
     EXPECT_EQ(interpolated_trajectory.joint_names.size(), 6);
     EXPECT_GT(interpolated_trajectory.points.size(), 100);  // 应该有200个点
     
     // 检查时间序列
     for (size_t i = 0; i < interpolated_trajectory.points.size(); ++i) {
-        double expected_time = i * 0.01;
+        double expected_time = i * config_.target_dt;
         EXPECT_NEAR(interpolated_trajectory.points[i].time_from_start, expected_time, 1e-6);
     }
 }
@@ -143,7 +143,7 @@ TEST_F(MoveItCompatibilityTest, ConfigurationPersistence) {
     interpolator_.setInterpolationConfig(config_);
     
     // 验证配置已更新
-    auto new_interpolated = interpolator_.interpolate(0.005);
+    auto new_interpolated = interpolator_.interpolate();
     EXPECT_GT(new_interpolated.points.size(), 200);  // 应该有更多点
 }
 
