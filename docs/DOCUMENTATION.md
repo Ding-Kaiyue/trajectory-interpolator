@@ -104,26 +104,35 @@ public:
 
 ```cpp
 struct SplineConfig {
-    enum SplineType {
-        CSPLINE,           // 三次样条插值
-        CSPLINE_HERMITE    // 三次Hermite样条插值
+    // 样条类型
+    enum class SplineType {
+        LINEAR = 10,            // 线性插值
+        CUBIC_SPLINE = 30,      // 三次样条插值 (C^2)
+        CUBIC_HERMITE = 31,     // 三次Hermite插值 (C^1)
     };
 
-    enum BoundaryType {
-        NATURAL,           // 自然边界条件
-        CLAMPED,           // 固定边界条件
-        NOT_A_KNOT        // 非节点边界条件
+    // 边界条件
+    enum class BoundaryType {
+        FIRST_DERIVATIVE = 1,   // 一阶导数
+        SECOND_DERIVATIVE = 2,  // 二阶导数
+        NOT_A_KNOT = 3,         // not a knot条件
     };
+    
+    SplineType spline_type = SplineType::CUBIC_SPLINE;
+    BoundaryType left_boundary = BoundaryType::SECOND_DERIVATIVE;
+    BoundaryType right_boundary = BoundaryType::SECOND_DERIVATIVE;
+    double left_value = 0.0;         // 起始速度/加速度
+    double right_value = 0.0;        // 终止速度/加速度
+    bool make_monotonic = false;     // 是否强制单调性
+    double target_dt = 0.02;         // 目标插值间隔
 
-    double dt = 0.02;                    // 插值时间步长
-    SplineType spline_type = CSPLINE;    // 插值类型
-    BoundaryType boundary_type = NATURAL; // 边界条件类型
-    bool monotonic = false;              // 是否保持单调性
+    // 机械臂约束
+    double max_velocity = M_PI / 2.0;       // 最大速度(rad/s)
+    double max_acceleration = M_PI;         // 最大加速度(rad/s^2)
+    double max_jerk = M_PI;                 // 最大加加速度(rad/s^3)
 
-    // 约束参数
-    double max_velocity = 1.0;           // 最大速度 (rad/s)
-    double max_acceleration = 2.0;       // 最大加速度 (rad/s²)
-    double max_jerk = 5.0;              // 最大加加速度 (rad/s³)
+    // 关节名称
+    std::vector<std::string> joint_names;
 };
 ```
 
