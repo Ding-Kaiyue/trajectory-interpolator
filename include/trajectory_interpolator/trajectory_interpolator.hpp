@@ -34,6 +34,11 @@ public:
     std::vector<double> interpolateAtTime(double time) const;
     std::vector<double> getVelocityAtTime(double time) const;
     std::vector<double> getAccelerationAtTime(double time) const;
+    
+    // 实时插值功能
+    TrajectoryPoint getTrajectoryPointAtTime(double time) const;
+    bool isFinished(double current_time) const;
+    double getTotalDuration() const;
 
     // 检查约束条件
     bool checkConstraints() const;

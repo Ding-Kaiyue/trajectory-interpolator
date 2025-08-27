@@ -97,3 +97,32 @@ const trajectory_interpolator::MoveItSplineAdapter& TrajectoryInterpolator::getA
 trajectory_interpolator::MoveItSplineAdapter& TrajectoryInterpolator::getAdapter() {
     return adapter_;
 }
+
+TrajectoryPoint TrajectoryInterpolator::getTrajectoryPointAtTime(double time) const {
+    if (!isLoaded()) {
+        throw std::runtime_error("No trajectory loaded");
+    }
+    
+    TrajectoryPoint point;
+    point.time_from_start = time;
+    point.positions = adapter_.interpolateAtTime(time);
+    // 位置模式下速度和加速度可选，但保留接口
+    point.velocities = adapter_.getVelocityAtTime(time);
+    point.accelerations = adapter_.getAccelerationAtTime(time);
+    
+    return point;
+}
+
+bool TrajectoryInterpolator::isFinished(double current_time) const {
+    if (!isLoaded()) {
+        return true;
+    }
+    return current_time >= adapter_.getEndTime();
+}
+
+double TrajectoryInterpolator::getTotalDuration() const {
+    if (!isLoaded()) {
+        return 0.0;
+    }
+    return adapter_.getEndTime() - adapter_.getStartTime();
+}
