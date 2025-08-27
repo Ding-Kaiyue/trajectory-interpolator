@@ -9,16 +9,13 @@
 #include <moveit_msgs/msg/robot_trajectory.hpp>
 #endif
 
-namespace trajectory_interpolator 
-{
-
 class TrajectoryInterpolator {
 public:
     TrajectoryInterpolator() = default;
     ~TrajectoryInterpolator() = default;
 
     // 设置插值配置
-    void setInterpolationConfig(const SplineConfig& config);
+    void setInterpolationConfig(const trajectory_interpolator::SplineConfig& config);
 
     // 加载轨迹（简化版本）
     bool loadTrajectory(const Trajectory& trajectory);
@@ -42,20 +39,18 @@ public:
     bool checkConstraints() const;
 
     // 获取配置和信息
-    const SplineConfig& getConfig() const;
+    const trajectory_interpolator::SplineConfig& getConfig() const;
     bool isLoaded() const;
     double getStartTime() const;
     double getEndTime() const;
 
     // 获取适配器
-    const MoveItSplineAdapter& getAdapter() const;
-    MoveItSplineAdapter& getAdapter();
+    const trajectory_interpolator::MoveItSplineAdapter& getAdapter() const;
+    trajectory_interpolator::MoveItSplineAdapter& getAdapter();
 
 private:
-    MoveItSplineAdapter adapter_;
-    SplineConfig config_;
+    trajectory_interpolator::MoveItSplineAdapter adapter_;
+    trajectory_interpolator::SplineConfig config_;
 };
-
-} // namespace trajectory_interpolator
 
 #endif // TRAJECTORY_INTERPOLATOR_TRAJECTORY_INTERPOLATOR_HPP

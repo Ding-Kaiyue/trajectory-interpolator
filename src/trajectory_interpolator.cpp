@@ -2,10 +2,7 @@
 #include <stdexcept>
 #include <algorithm>
 
-namespace trajectory_interpolator {
-
-
-void TrajectoryInterpolator::setInterpolationConfig(const SplineConfig& config) {
+void TrajectoryInterpolator::setInterpolationConfig(const trajectory_interpolator::SplineConfig& config) {
     config_ = config;
 }
 
@@ -77,7 +74,7 @@ bool TrajectoryInterpolator::checkConstraints() const {
     return adapter_.checkConstraints(config_);
 }
 
-const SplineConfig& TrajectoryInterpolator::getConfig() const {
+const trajectory_interpolator::SplineConfig& TrajectoryInterpolator::getConfig() const {
     return config_;
 }
 
@@ -93,12 +90,10 @@ double TrajectoryInterpolator::getEndTime() const {
     return adapter_.getEndTime();
 }
 
-const MoveItSplineAdapter& TrajectoryInterpolator::getAdapter() const {
+const trajectory_interpolator::MoveItSplineAdapter& TrajectoryInterpolator::getAdapter() const {
     return adapter_;
 }
 
-MoveItSplineAdapter& TrajectoryInterpolator::getAdapter() {
+trajectory_interpolator::MoveItSplineAdapter& TrajectoryInterpolator::getAdapter() {
     return adapter_;
 }
-
-} // namespace trajectory_interpolator

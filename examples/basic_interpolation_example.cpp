@@ -1,11 +1,12 @@
 #include "trajectory_interpolator/trajectory_interpolator.hpp"
+#include "trajectory_interpolator/moveit_spline_adapter.hpp"
 #include <iostream>
 #include <vector>
 
 int main() {
     try {
         // 创建轨迹插值器
-        trajectory_interpolator::TrajectoryInterpolator interpolator;
+        TrajectoryInterpolator interpolator;
         
         // 设置配置
         trajectory_interpolator::SplineConfig config;
@@ -18,7 +19,7 @@ int main() {
         interpolator.setInterpolationConfig(config);
         
         // 创建测试轨迹
-        trajectory_interpolator::Trajectory trajectory;
+        Trajectory trajectory;
         trajectory.joint_names = {"joint1", "joint2", "joint3"};
         
         // 添加轨迹点
@@ -31,7 +32,7 @@ int main() {
         };
         
         for (size_t i = 0; i < times.size(); ++i) {
-            trajectory_interpolator::TrajectoryPoint point;
+            TrajectoryPoint point;
             point.time_from_start = times[i];
             point.positions = positions[i];
             point.velocities = {0.0, 0.0, 0.0};  // 简化为零速度

@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include "trajectory_interpolator/trajectory_interpolator.hpp"
+#include "trajectory_interpolator/moveit_spline_adapter.hpp"
 #include <vector>
 #include <cmath>
 
@@ -16,8 +17,8 @@ protected:
         interpolator_.setInterpolationConfig(config_);
     }
 
-    trajectory_interpolator::Trajectory createTestTrajectory() {
-        trajectory_interpolator::Trajectory trajectory;
+    Trajectory createTestTrajectory() {
+        Trajectory trajectory;
         trajectory.joint_names = {"joint1", "joint2", "joint3"};
         
         std::vector<double> times = {0.0, 1.0, 2.0, 3.0};
@@ -29,7 +30,7 @@ protected:
         };
         
         for (size_t i = 0; i < times.size(); ++i) {
-            trajectory_interpolator::TrajectoryPoint point;
+            TrajectoryPoint point;
             point.time_from_start = times[i];
             point.positions = positions[i];
             point.velocities = {0.0, 0.0, 0.0};
@@ -40,7 +41,7 @@ protected:
         return trajectory;
     }
 
-    trajectory_interpolator::TrajectoryInterpolator interpolator_;
+    TrajectoryInterpolator interpolator_;
     trajectory_interpolator::SplineConfig config_;
 };
 
@@ -117,7 +118,7 @@ TEST_F(TrajectoryInterpolatorTest, InvalidTimeRequests) {
 }
 
 TEST_F(TrajectoryInterpolatorTest, EmptyTrajectory) {
-    trajectory_interpolator::Trajectory empty_trajectory;
+    Trajectory empty_trajectory;
     EXPECT_FALSE(interpolator_.loadTrajectory(empty_trajectory));
 }
 
