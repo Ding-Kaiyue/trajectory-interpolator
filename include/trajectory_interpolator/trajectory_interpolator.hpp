@@ -18,7 +18,13 @@ public:
     void setInterpolationConfig(const trajectory_interpolator::SplineConfig& config);
 
     // 加载轨迹（简化版本）
-    bool loadTrajectory(const Trajectory& trajectory);
+    bool loadTrajectory(const trajectory_interpolator::Trajectory& trajectory);
+
+    // 加载轨迹并直接指定动力学参数
+    bool loadTrajectoryWithDynamicConfig(const trajectory_interpolator::Trajectory& trajectory,
+                                        double max_velocity,
+                                        double max_acceleration,
+                                        double max_jerk);
 
 #if defined(USE_ROS2_MESSAGES) && USE_ROS2_MESSAGES
     // 加载轨迹
@@ -30,13 +36,13 @@ public:
 #endif
 
     // 插值操作
-    Trajectory interpolate() const;
+    trajectory_interpolator::Trajectory interpolate() const;
     std::vector<double> interpolateAtTime(double time) const;
     std::vector<double> getVelocityAtTime(double time) const;
     std::vector<double> getAccelerationAtTime(double time) const;
     
     // 实时插值功能
-    TrajectoryPoint getTrajectoryPointAtTime(double time) const;
+    trajectory_interpolator::TrajectoryPoint getTrajectoryPointAtTime(double time) const;
     bool isFinished(double current_time) const;
     double getTotalDuration() const;
 

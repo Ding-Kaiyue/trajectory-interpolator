@@ -32,9 +32,9 @@ struct SplineConfig {
     double target_dt = 0.02;         // 目标插值间隔
 
     // 机械臂约束
-    double max_velocity = M_PI / 2.0;       // 最大速度(rad/s)
-    double max_acceleration = M_PI;         // 最大加速度(rad/s^2)
-    double max_jerk = M_PI;                 // 最大加加速度(rad/s^3)
+    double max_velocity = 180.0;       // 最大速度(deg/s)
+    double max_acceleration = 360.0;   // 最大加速度(deg/s^2)
+    double max_jerk = 720.0;           // 最大加加速度(deg/s^3)
 
     // 关节名称
     std::vector<std::string> joint_names;

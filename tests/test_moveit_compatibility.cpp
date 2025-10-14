@@ -17,8 +17,8 @@ protected:
         interpolator_.setInterpolationConfig(config_);
     }
 
-    Trajectory createMoveItStyleTrajectory() {
-        Trajectory trajectory;
+    trajectory_interpolator::Trajectory createMoveItStyleTrajectory() {
+        trajectory_interpolator::Trajectory trajectory;
         trajectory.joint_names = {"joint1", "joint2", "joint3", "joint4", "joint5", "joint6"};
         
         // 模拟MoveIt规划的轨迹点
@@ -32,7 +32,7 @@ protected:
         };
         
         for (size_t i = 0; i < times.size(); ++i) {
-            TrajectoryPoint point;
+            trajectory_interpolator::TrajectoryPoint point;
             point.time_from_start = times[i];
             point.positions = positions[i];
             point.velocities = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
@@ -123,7 +123,7 @@ TEST_F(MoveItCompatibilityTest, TrajectoryInterpolation) {
 
 TEST_F(MoveItCompatibilityTest, ErrorHandling) {
     // 测试空轨迹
-    Trajectory empty_trajectory;
+    trajectory_interpolator::Trajectory empty_trajectory;
     EXPECT_FALSE(interpolator_.loadTrajectory(empty_trajectory));
     
     // 测试无效时间

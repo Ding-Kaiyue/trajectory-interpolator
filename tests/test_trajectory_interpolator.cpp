@@ -17,8 +17,8 @@ protected:
         interpolator_.setInterpolationConfig(config_);
     }
 
-    Trajectory createTestTrajectory() {
-        Trajectory trajectory;
+    trajectory_interpolator::Trajectory createTestTrajectory() {
+        trajectory_interpolator::Trajectory trajectory;
         trajectory.joint_names = {"joint1", "joint2", "joint3"};
         
         std::vector<double> times = {0.0, 1.0, 2.0, 3.0};
@@ -30,7 +30,7 @@ protected:
         };
         
         for (size_t i = 0; i < times.size(); ++i) {
-            TrajectoryPoint point;
+            trajectory_interpolator::TrajectoryPoint point;
             point.time_from_start = times[i];
             point.positions = positions[i];
             point.velocities = {0.0, 0.0, 0.0};
@@ -118,7 +118,7 @@ TEST_F(TrajectoryInterpolatorTest, InvalidTimeRequests) {
 }
 
 TEST_F(TrajectoryInterpolatorTest, EmptyTrajectory) {
-    Trajectory empty_trajectory;
+    trajectory_interpolator::Trajectory empty_trajectory;
     EXPECT_FALSE(interpolator_.loadTrajectory(empty_trajectory));
 }
 

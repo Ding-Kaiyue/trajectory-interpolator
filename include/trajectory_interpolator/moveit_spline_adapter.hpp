@@ -14,6 +14,9 @@
 #include <builtin_interfaces/msg/duration.hpp>
 #endif
 
+namespace trajectory_interpolator
+{
+
 // 简化的轨迹点结构（不依赖ROS2消息）
 struct TrajectoryPoint {
     double time_from_start;
@@ -27,9 +30,6 @@ struct Trajectory {
     std::vector<std::string> joint_names;
     std::vector<TrajectoryPoint> points;
 };
-
-namespace trajectory_interpolator 
-{
 
 class MoveItSplineAdapter {
 public:

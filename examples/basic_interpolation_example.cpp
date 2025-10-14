@@ -19,9 +19,9 @@ int main() {
         interpolator.setInterpolationConfig(config);
         
         // 创建测试轨迹
-        Trajectory trajectory;
+        trajectory_interpolator::Trajectory trajectory;
         trajectory.joint_names = {"joint1", "joint2", "joint3"};
-        
+
         // 添加轨迹点
         std::vector<double> times = {0.0, 1.0, 2.0, 3.0};
         std::vector<std::vector<double>> positions = {
@@ -30,9 +30,9 @@ int main() {
             {1.0, 0.8, 0.6},    // t=2s
             {1.5, 1.2, 1.0}     // t=3s
         };
-        
+
         for (size_t i = 0; i < times.size(); ++i) {
-            TrajectoryPoint point;
+            trajectory_interpolator::TrajectoryPoint point;
             point.time_from_start = times[i];
             point.positions = positions[i];
             point.velocities = {0.0, 0.0, 0.0};  // 简化为零速度
