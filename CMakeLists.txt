@@ -11,14 +11,19 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-# 查找GTest，如果找不到则跳过测试
-find_package(GTest QUIET)
-if(NOT GTest_FOUND)
-  message(WARNING "GTest not found, tests will be disabled")
-  set(BUILD_TESTS OFF)
-else()
-  set(BUILD_TESTS ON)
+# 默认禁用测试
+if(NOT DEFINED BUILD_TESTING)
+  set(BUILD_TESTING OFF)
 endif()
+
+# 查找GTest，如果需要启用测试则需要GTest
+find_package(GTest QUIET)
+if(BUILD_TESTING AND NOT GTest_FOUND)
+  message(WARNING "BUILD_TESTING enabled but GTest not found, tests will be disabled")
+  set(BUILD_TESTING OFF)
+endif()
+
+set(BUILD_TESTS ${BUILD_TESTING})
 
 find_package(Threads REQUIRED)
 
