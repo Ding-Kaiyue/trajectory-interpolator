@@ -3,6 +3,11 @@ project(trajectory_interpolator)
 
 set(CMAKE_CXX_STANDARD 17)
 
+# Ensure consistent behavior for option() vs normal variables (suppress CMP0077 developer warnings)
+if(POLICY CMP0077)
+  cmake_policy(SET CMP0077 NEW)
+endif()
+
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic -Wno-subobject-linkage)
 endif()
