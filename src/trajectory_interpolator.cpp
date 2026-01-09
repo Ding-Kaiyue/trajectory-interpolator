@@ -48,12 +48,22 @@ trajectory_interpolator::Trajectory TrajectoryInterpolator::interpolate() const 
 
     double start_time = adapter_.getStartTime();
     double end_time = adapter_.getEndTime();
+    double duration = end_time - start_time;
 
-    int num_points = static_cast<int>((end_time - start_time) / config_.target_dt) + 1;
+    // 计算需要的点数
+    int num_intervals = static_cast<int>(std::round(duration / config_.target_dt));
+    int num_points = num_intervals + 1;  // 包括起点和终点
+
     for (int i = 0; i < num_points; ++i) {
-        double t = start_time + i * config_.target_dt;
-        if (t > end_time) break;
-        
+        double t;
+        if (i == num_points - 1) {
+            // 最后一个点确保是终点
+            t = end_time;
+        } else {
+            // 中间的点均匀分布
+            t = start_time + i * config_.target_dt;
+        }
+
         trajectory_interpolator::TrajectoryPoint point;
         point.time_from_start = t;
         point.positions = adapter_.interpolateAtTime(t);

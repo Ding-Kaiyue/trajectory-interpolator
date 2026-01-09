@@ -39,8 +39,22 @@ bool MoveItSplineAdapter::createSplineFromTrajectory(const Trajectory& trajector
         }
 
         auto spline = std::make_unique<tk::spline>();
-        spline->set_boundary(convertBoundaryType(config_.left_boundary), config_.left_value,
-                            convertBoundaryType(config_.right_boundary), config_.right_value);
+
+        // 根据配置决定边界条件类型和值
+        // 对于轨迹插值，优先使用轨迹提供的端点速度/加速度
+        tk::spline::bd_type left_bd_type = convertBoundaryType(config_.left_boundary);
+        tk::spline::bd_type right_bd_type = convertBoundaryType(config_.right_boundary);
+
+        double left_bd_value = (config_.left_boundary == SplineConfig::BoundaryType::FIRST_DERIVATIVE)
+                               ? velocities.front()
+                               : accelerations.front();
+        double right_bd_value = (config_.right_boundary == SplineConfig::BoundaryType::FIRST_DERIVATIVE)
+                                ? velocities.back()
+                                : accelerations.back();
+
+        spline->set_boundary(left_bd_type, left_bd_value,
+                            right_bd_type, right_bd_value);
+
         spline->set_points(time_points_, positions, convertSplineType(config_.spline_type));
 
         joint_splines_.push_back(std::move(spline));
@@ -193,13 +207,27 @@ Trajectory MoveItSplineAdapter::interpolate(double target_dt) const {
 
     double start_time = getStartTime();
     double end_time = getEndTime();
+    double duration = end_time - start_time;
 
     if (target_dt <= 0.0) {
         throw std::runtime_error("Target dt must be positive");
     }
 
     try {
-        for (double t = start_time; t <= end_time; t += target_dt) {
+        // 计算需要的点数
+        int num_intervals = static_cast<int>(std::round(duration / target_dt));
+        int num_points = num_intervals + 1;  // 包括起点和终点
+
+        for (int i = 0; i < num_points; ++i) {
+            double t;
+            if (i == num_points - 1) {
+                // 最后一个点确保是终点
+                t = end_time;
+            } else {
+                // 中间的点均匀分布
+                t = start_time + i * target_dt;
+            }
+
             TrajectoryPoint point;
             point.time_from_start = t;
 
@@ -214,7 +242,7 @@ Trajectory MoveItSplineAdapter::interpolate(double target_dt) const {
             // acceleration
             auto accelerations = getAccelerationAtTime(t);
             point.accelerations = accelerations;
-            
+
             result.points.push_back(point);
         }
     } catch (const std::exception& e) {

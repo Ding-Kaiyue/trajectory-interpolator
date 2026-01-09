@@ -24,8 +24,8 @@ struct SplineConfig {
     };
     
     SplineType spline_type = SplineType::CUBIC_SPLINE;
-    BoundaryType left_boundary = BoundaryType::SECOND_DERIVATIVE;
-    BoundaryType right_boundary = BoundaryType::SECOND_DERIVATIVE;
+    BoundaryType left_boundary = BoundaryType::FIRST_DERIVATIVE;
+    BoundaryType right_boundary = BoundaryType::FIRST_DERIVATIVE;
     double left_value = 0.0;         // 起始速度/加速度
     double right_value = 0.0;        // 终止速度/加速度
     bool make_monotonic = false;     // 是否强制单调性
