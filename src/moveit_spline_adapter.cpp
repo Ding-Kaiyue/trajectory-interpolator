@@ -12,30 +12,91 @@ bool MoveItSplineAdapter::createSplineFromTrajectory(const Trajectory& trajector
         return false;
     }
 
+    Trajectory working = trajectory;
+    if (working.points.size() == 2) {
+        const auto& p0 = working.points.front();
+        const auto& p1 = working.points.back();
+        const size_t nj = p0.positions.size();
+        if (nj == 0 || p1.positions.size() != nj) {
+            return false;
+        }
+        const double t0 = p0.time_from_start;
+        const double t1 = p1.time_from_start;
+        if (!(t1 > t0)) {
+            return false;
+        }
+
+        TrajectoryPoint mid;
+        mid.time_from_start = 0.5 * (t0 + t1);
+        mid.positions.resize(nj, 0.0);
+        mid.velocities.resize(nj, 0.0);
+        mid.accelerations.resize(nj, 0.0);
+        const double dt = t1 - t0;
+        const bool has_v0 = (p0.velocities.size() == nj);
+        const bool has_v1 = (p1.velocities.size() == nj);
+        const bool has_a0 = (p0.accelerations.size() == nj);
+        const bool has_a1 = (p1.accelerations.size() == nj);
+        for (size_t j = 0; j < nj; ++j) {
+            mid.positions[j] = 0.5 * (p0.positions[j] + p1.positions[j]);
+            mid.velocities[j] = (has_v0 && has_v1)
+                                    ? 0.5 * (p0.velocities[j] + p1.velocities[j])
+                                    : (p1.positions[j] - p0.positions[j]) / std::max(1e-9, dt);
+            mid.accelerations[j] = (has_a0 && has_a1)
+                                       ? 0.5 * (p0.accelerations[j] + p1.accelerations[j])
+                                       : 0.0;
+        }
+        working.points.insert(working.points.begin() + 1, std::move(mid));
+    }
+    if (working.points.size() < 3) {
+        return false;
+    }
+
     config_ = config;
-    joint_names_ = trajectory.joint_names;
+    joint_names_ = working.joint_names;
     joint_splines_.clear();
     time_points_.clear();
 
     // 提取时间序列
-    for (const auto& point : trajectory.points) {
+    time_points_.reserve(working.points.size());
+    for (size_t i = 0; i < working.points.size(); ++i) {
+        const auto& point = working.points[i];
         time_points_.push_back(point.time_from_start);
+        if (i > 0 && !(time_points_[i] > time_points_[i - 1])) {
+            return false;
+        }
     }
 
     // 为每个关节创建spline
-    size_t num_joints = trajectory.points[0].positions.size();
+    size_t num_joints = working.points[0].positions.size();
+    if (num_joints == 0) {
+        return false;
+    }
     joint_splines_.reserve(num_joints);
+
+    for (const auto& point : working.points) {
+        if (point.positions.size() != num_joints) {
+            return false;
+        }
+        if (!point.velocities.empty() && point.velocities.size() != num_joints) {
+            return false;
+        }
+        if (!point.accelerations.empty() && point.accelerations.size() != num_joints) {
+            return false;
+        }
+    }
 
     for (size_t joint_idx = 0; joint_idx < num_joints; ++joint_idx) {
         std::vector<double> positions, velocities, accelerations;
-        positions.reserve(trajectory.points.size());
-        velocities.reserve(trajectory.points.size());
-        accelerations.reserve(trajectory.points.size());
+        positions.reserve(working.points.size());
+        velocities.reserve(working.points.size());
+        accelerations.reserve(working.points.size());
 
-        for (const auto& point : trajectory.points) {
+        for (const auto& point : working.points) {
             positions.push_back(point.positions[joint_idx]);
-            velocities.push_back(point.velocities[joint_idx]);
-            accelerations.push_back(point.accelerations[joint_idx]);
+            velocities.push_back(
+                point.velocities.size() == num_joints ? point.velocities[joint_idx] : 0.0);
+            accelerations.push_back(
+                point.accelerations.size() == num_joints ? point.accelerations[joint_idx] : 0.0);
         }
 
         auto spline = std::make_unique<tk::spline>();
